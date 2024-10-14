@@ -198,8 +198,8 @@ exports.getTourStats = async (req,res) => {
         },
         {
           $group: {
-           // _id: "$difficulty",// null significa selecionar todos os dados salvos
-            _id: "$ratingsAverage",
+            _id: {$toUpper: "$difficulty"},// null significa selecionar todos os dados salvos
+           // _id: "$ratingsAverage",
             numTours: {$sum: 1},
             numRatings: {$sum: '$ratingsQuantity'},
             avgRating: {$avg: "$ratingsAverage"},
