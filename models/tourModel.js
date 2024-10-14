@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
+const validator = require("validator");
 
 const tourSchema = new mongoose.Schema({
   /* name: String,
@@ -10,6 +11,12 @@ const tourSchema = new mongoose.Schema({
      type:String,
      required: [true, "message: a tour must have a name"],
      unique: true,
+     trim: true,
+     // DATA VALIDATORS
+    // Just for strings
+     maxlength: [40, "A tour name can not have more than 40 characters"],
+     minlength: [10, "A tour name can not have less than 10 characters"],
+   //  validate: [validator.isAlpha, "The name must have just letters"]
    },
    slug: String,
    price:{
@@ -22,11 +29,17 @@ const tourSchema = new mongoose.Schema({
     },
     maxGroupSize: {
       type: Number,
-      required: [true, "A tous must have a max group size"],
+      required: [true, "A tour must have a max group size"],
     },
     difficulty: {
       type: String,
       required: [true, "A tour must have a difficulty"],
+      //  DATA VALIDATORS
+      // just for strings
+      enum: {
+        values: ["easy", "medium", "difficult"],
+        message: "A tour difficult is either: easy, medium, difficult",
+      }
     },
     // rating:{
     //   type: Number,
@@ -34,13 +47,26 @@ const tourSchema = new mongoose.Schema({
     // },
     ratingsAverage: {
       type:Number,
-      default: 4.5
+      default: 4.5,
+
+      // DATA VALIDATORS
+        // just for numbers or dates.
+      min: [1, "a tour must have a rating above 1.0"],
+      max: [5.0, "a tour must have a rating under 5.0"]
     },
     ratingsQuantity: {
       type: Number,
       default: 0
     },
-    priceDiscount: Number,
+    priceDiscount: {
+      type:  Number,
+      validate: {
+         validator: function(val) {
+          return val < this.price;
+         },
+         message: "price discount can not be higher than price"
+      }
+    },
     summary:{
       type: String,
       trim: true,
@@ -60,7 +86,6 @@ const tourSchema = new mongoose.Schema({
       default: Date.now()
     },
     startDates: [Date],
-
     secretTour: {
       type: Boolean,
       default: false
@@ -69,7 +94,7 @@ const tourSchema = new mongoose.Schema({
   {
     toJSON: {virtuals: true},
     toObject: {virtuals: true}
-  })
+  });
  
 tourSchema.virtual("durationWeeks").get(function() {
   return this.duration / 7;

@@ -154,22 +154,25 @@ exports.postATour = async  (req, res) => {
 exports.updateTour = async (req, res) => {
 
   try{
+
     const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
       // Aqui é para retornar o valor atualizado. 
       new: true,
+      // Validar uma entrada com DataValidars no model
       runValidators: true
     });
+
     res.status(200).json({
       status: "success",
       data: {
-        tour: tour,
+         tour,
       }
     })
 
   }catch(error){
     res.status(404).json({
       status: "fail",
-      message: error
+      message: error.message
     })
   }
 }
