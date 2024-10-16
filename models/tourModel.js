@@ -65,7 +65,7 @@ const tourSchema = new mongoose.Schema({
           return val < this.price;
          },
          message: "price discount can not be higher than price"
-      }
+      },
     },
     summary:{
       type: String,
