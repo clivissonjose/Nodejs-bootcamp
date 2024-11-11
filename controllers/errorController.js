@@ -19,6 +19,10 @@ const handleValidationErrorDB = err => {
   return new AppError(message, 400);
 };
 
+const handleJWTError = (error) => new AppError("Invalid token. Login again.", 401);
+
+const handleTokenExpiredError = (error) => new AppError("Expired token. Please login again", 401);
+
 const sendErrorDev = (err,res) =>{
   res.status(err.statusCode).json({
     status: err.status,
@@ -59,12 +63,19 @@ module.exports = (err, req, res, next) => {
     let error = { ...err };
 
     console.log(error.name);
+
+    // Não funciona corretamnete e eu não sei por que.
     if(err.name === "CastError") 
       error = handleCastErrorBD(err);
 
     if (error.code === 11000) error = handleDuplicateFieldsDB(error);
     if (error.name === 'ValidationError')
       error = handleValidationErrorDB(error);
+    if(error.name = "JsonWebTokenError")
+       error = handleJWTError(error);
+
+    if(error.name = "TokenExpired")
+      error = handleTokenExpiredError(error);
 
     sendErrorProd(error,res);
   }
